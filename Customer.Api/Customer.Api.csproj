@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>GoLogs.Services.Customer.Api</RootNamespace>
+    <Authors>IqbalN</Authors>
+    <Company>PT Gologs Aplikasi Indonesia</Company>
+    <PackageVersion>0.1.0</PackageVersion>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
+    <FileVersion>0.1.0</FileVersion>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Title>Customer.Api</Title>
+    <Copyright>Go-Logs 2020</Copyright>
+    <Description>Go-Logs customer management.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Customer.Api' " />
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DocumentationFile>bin\Debug\Customer.Api.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="9.3.0" />
+    <PackageReference Include="GoLogs.Framework.Core" Version="0.2.0" />
+    <PackageReference Include="GoLogs.Framework.Mvc" Version="0.1.0" />
+    <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.0.7" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="7.0.7" />
+    <PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="4.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.9" />
+    <PackageReference Include="Nirbito.Framework.PostgresClient" Version="0.1.0" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.2.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GoLogs.Contracts\Contracts.csproj" />
+  </ItemGroup>
+</Project>

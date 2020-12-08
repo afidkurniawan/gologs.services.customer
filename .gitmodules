@@ -1,0 +1,3 @@
+[submodule "GoLogs.Contracts"]
+	path = GoLogs.Contracts
+	url = https://bitbucket.org/go-logs/GoLogs.Contracts.git
