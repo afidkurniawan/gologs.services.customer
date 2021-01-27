@@ -4,7 +4,7 @@ using AutoMapper;
 using GoLogs.Framework.Mvc;
 using GoLogs.Services.Customer.Api.Application.Internals;
 using GoLogs.Services.Customer.Api.Models;
-using PostgresClient.Exceptions;
+using Nirbito.Framework.PostgresClient.Exceptions;
 using SqlKata;
 
 namespace GoLogs.Services.Customer.Api.BusinessLogic

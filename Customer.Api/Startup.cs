@@ -20,9 +20,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using PostgresClient;
-using PostgresClient.DependencyInjectionExtensions;
-using PostgresClient.ManagedColumns;
+using Nirbito.Framework.PostgresClient;
+using Nirbito.Framework.PostgresClient.DependencyInjectionExtensions;
+using Nirbito.Framework.PostgresClient.ManagedColumns;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace GoLogs.Services.Customer.Api

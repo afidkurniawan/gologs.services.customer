@@ -1,6 +1,6 @@
 using GoLogs.Services.Customer.Api.Models;
 using Microsoft.Extensions.Options;
-using PostgresClient;
+using Nirbito.Framework.PostgresClient;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace GoLogs.Services.Customer.Api.Application.Internals
