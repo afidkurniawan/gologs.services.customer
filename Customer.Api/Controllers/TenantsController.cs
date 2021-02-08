@@ -1,3 +1,9 @@
+﻿// -------------------------------------------------------------
+// Copyright Go-Logs. All rights reserved.
+// Proprietary and confidential.
+// Unauthorized copying of this file is strictly prohibited.
+// -------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,8 +23,8 @@ namespace GoLogs.Services.Customer.Api.Controllers
     public class TenantsController : Controller
     {
         public TenantsController(ICustomerLogic customerLogic, IProblemCollector problemCollector, IMapper mapper,
-            IPublishEndpoint publishEndpoint) :
-            base(customerLogic, problemCollector, mapper, publishEndpoint)
+            IPublishEndpoint publishEndpoint)
+            : base(customerLogic, problemCollector, mapper, publishEndpoint)
         {
         }
 
@@ -69,7 +75,7 @@ namespace GoLogs.Services.Customer.Api.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(IEnumerable<ProblemDetails>), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> CreateAsync([FromBody]TenantInputDto tenantInput)
+        public async Task<ActionResult> CreateAsync([FromBody] TenantInputDto tenantInput)
         {
             var tenant = Mapper.Map<Tenant>(tenantInput);
             await CustomerLogic.CreateTenantAsync(tenant);
@@ -80,8 +86,8 @@ namespace GoLogs.Services.Customer.Api.Controllers
                 return errorResult;
             }
 
-            await PublishEndpoint.Publish<ITenantCreatedEvent>(new {Tenant = tenant});
-            
+            await PublishEndpoint.Publish<ITenantCreatedEvent>(new { Tenant = tenant });
+
             return CreatedAtAction(
                 Url.Action(nameof(GetAsync)), new { id = tenant.Id }, tenant);
         }

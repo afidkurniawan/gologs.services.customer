@@ -1,3 +1,9 @@
+﻿// -------------------------------------------------------------
+// Copyright Go-Logs. All rights reserved.
+// Proprietary and confidential.
+// Unauthorized copying of this file is strictly prohibited.
+// -------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -16,7 +22,8 @@ namespace GoLogs.Services.Customer.Api.Controllers
     public class CompaniesController : Controller
     {
         public CompaniesController(ICustomerLogic customerLogic, IProblemCollector problemCollector, IMapper mapper,
-            IPublishEndpoint publishEndpoint) : base(customerLogic, problemCollector, mapper, publishEndpoint)
+            IPublishEndpoint publishEndpoint)
+            : base(customerLogic, problemCollector, mapper, publishEndpoint)
         {
         }
 
@@ -48,12 +55,12 @@ namespace GoLogs.Services.Customer.Api.Controllers
 
             return NotFound();
         }
-        
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(IEnumerable<ProblemDetails>), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> CreateAsync([FromBody]CompanyInputDto companyInput)
+        public async Task<ActionResult> CreateAsync([FromBody] CompanyInputDto companyInput)
         {
             var company = Mapper.Map<Company>(companyInput);
             await CustomerLogic.CreateCompanyAsync(company);
@@ -62,20 +69,20 @@ namespace GoLogs.Services.Customer.Api.Controllers
             return errorResult ?? CreatedAtAction(
                 Url.Action(nameof(GetAsync)), new { id = company.Id }, company);
         }
-        
+
         [HttpPatch]
         [Route("{id:int}")]
         [ProducesResponseType(typeof(Company), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(IEnumerable<ProblemDetails>), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> UpdateAsync(int id, [FromBody]JsonPatchDocument<CompanyInputDto> patchDoc)
+        public async Task<ActionResult> UpdateAsync(int id, [FromBody] JsonPatchDocument<CompanyInputDto> patchDoc)
         {
             if (id <= 0)
             {
                 return BadRequest();
             }
-            
+
             var patchTester = new CompanyInputDto();
             patchDoc.ApplyTo(patchTester, ModelState);
             TryValidateModel(patchTester);
@@ -84,16 +91,16 @@ namespace GoLogs.Services.Customer.Api.Controllers
                 return ValidationProblem();
             }
 
-            var company = new Company {Id = id};
+            var company = new Company { Id = id };
             patchDoc.ApplyTo(company);
 
             if (await CustomerLogic.UpdateCompanyAsync(company))
             {
                 return Ok();
             }
-            
+
             var errorResult = CheckProblems();
-            return (ActionResult) errorResult ?? NoContent();
+            return (ActionResult)errorResult ?? NoContent();
         }
 
         [HttpDelete]
@@ -112,9 +119,9 @@ namespace GoLogs.Services.Customer.Api.Controllers
             {
                 return Ok();
             }
-            
+
             var errorResult = CheckProblems();
-            return (ActionResult) errorResult ?? NotFound();
+            return (ActionResult)errorResult ?? NotFound();
         }
     }
 }

@@ -1,3 +1,9 @@
+﻿// -------------------------------------------------------------
+// Copyright Go-Logs. All rights reserved.
+// Proprietary and confidential.
+// Unauthorized copying of this file is strictly prohibited.
+// -------------------------------------------------------------
+
 using System;
 using System.Linq;
 using FluentValidation;
@@ -10,6 +16,7 @@ namespace GoLogs.Services.Customer.Api.Application.Validators
         ///     Defines a name validator on the current rule builder.
         ///     A name can only contains letters, spaces, dots, and commas.
         /// </summary>
+        /// <returns></returns>
         public static IRuleBuilderInitial<T, string> PersonName<T>(
             this IRuleBuilder<T, string> ruleBuilder)
         {
@@ -36,6 +43,7 @@ namespace GoLogs.Services.Customer.Api.Application.Validators
         /// <summary>
         ///     Defines a numbers-only string validator on the current rule builder.
         /// </summary>
+        /// <returns></returns>
         public static IRuleBuilderOptions<T, string> NumbersOnly<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
             return ruleBuilder.Must(p => p.ToCharArray().All(Char.IsDigit))

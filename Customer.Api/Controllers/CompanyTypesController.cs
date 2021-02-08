@@ -1,3 +1,9 @@
+﻿// -------------------------------------------------------------
+// Copyright Go-Logs. All rights reserved.
+// Proprietary and confidential.
+// Unauthorized copying of this file is strictly prohibited.
+// -------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -16,7 +22,8 @@ namespace GoLogs.Services.Customer.Api.Controllers
     public class CompanyTypesController : Controller
     {
         public CompanyTypesController(ICustomerLogic customerLogic, IProblemCollector problemCollector, IMapper mapper,
-            IPublishEndpoint publishEndpoint) : base(customerLogic, problemCollector, mapper, publishEndpoint)
+            IPublishEndpoint publishEndpoint)
+            : base(customerLogic, problemCollector, mapper, publishEndpoint)
         {
         }
 
@@ -26,7 +33,7 @@ namespace GoLogs.Services.Customer.Api.Controllers
         {
             return Ok(await CustomerLogic.GetAllCompanyTypesAsync());
         }
-        
+
         [HttpGet]
         [Route("{id:int}")]
         [ProducesResponseType(typeof(CompanyType), StatusCodes.Status200OK)]
@@ -48,7 +55,7 @@ namespace GoLogs.Services.Customer.Api.Controllers
 
             return NotFound();
         }
-        
+
         [HttpGet]
         [Route("{id:int}/Companies")]
         [ProducesResponseType(typeof(IEnumerable<CompanyType>), StatusCodes.Status200OK)]
@@ -61,12 +68,12 @@ namespace GoLogs.Services.Customer.Api.Controllers
 
             return Ok(await CustomerLogic.GetCompaniesByCompanyTypeIdAsync(id));
         }
-        
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(IEnumerable<ProblemDetails>), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> CreateAsync([FromBody]CompanyTypeInputDto companyTypeInput)
+        public async Task<ActionResult> CreateAsync([FromBody] CompanyTypeInputDto companyTypeInput)
         {
             var companyType = Mapper.Map<CompanyType>(companyTypeInput);
             await CustomerLogic.CreateCompanyTypeAsync(companyType);
@@ -82,13 +89,13 @@ namespace GoLogs.Services.Customer.Api.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(IEnumerable<ProblemDetails>), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult> UpdateAsync(int id, [FromBody]JsonPatchDocument<CompanyTypeInputDto> patchDoc)
+        public async Task<ActionResult> UpdateAsync(int id, [FromBody] JsonPatchDocument<CompanyTypeInputDto> patchDoc)
         {
             if (id <= 0)
             {
                 return BadRequest();
             }
-            
+
             var patchTester = new CompanyTypeInputDto();
             patchDoc.ApplyTo(patchTester, ModelState);
             TryValidateModel(patchTester);
@@ -97,18 +104,18 @@ namespace GoLogs.Services.Customer.Api.Controllers
                 return ValidationProblem();
             }
 
-            var companyType = new CompanyType {Id = id};
+            var companyType = new CompanyType { Id = id };
             patchDoc.ApplyTo(companyType);
 
             if (await CustomerLogic.UpdateCompanyTypeAsync(companyType))
             {
                 return Ok();
             }
-            
+
             var errorResult = CheckProblems();
-            return (ActionResult) errorResult ?? NoContent();
+            return (ActionResult)errorResult ?? NoContent();
         }
-        
+
         [HttpDelete]
         [Route("{id:int}")]
         [ProducesResponseType(typeof(Company), StatusCodes.Status200OK)]
@@ -125,9 +132,9 @@ namespace GoLogs.Services.Customer.Api.Controllers
             {
                 return Ok();
             }
-            
+
             var errorResult = CheckProblems();
-            return (ActionResult) errorResult ?? NotFound();
+            return (ActionResult)errorResult ?? NotFound();
         }
     }
 }
