@@ -26,8 +26,8 @@
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.3.0" />
-    <PackageReference Include="GoLogs.Framework.Core" Version="0.2.0" />
-    <PackageReference Include="GoLogs.Framework.Mvc" Version="0.1.0" />
+    <PackageReference Include="GoLogs.Framework.Core" Version="0.4.1" />
+    <PackageReference Include="GoLogs.Framework.Mvc" Version="0.2.1" />
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.0.7" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="7.0.7" />
     <PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="4.0.0" />
