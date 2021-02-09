@@ -19,4 +19,7 @@ Go-Logs customer management.
 ### Database
 
 1. Create an instance of PostgreSQL locally.
-2. Execute scripts in `Customer.Api/database` directory in ascending order.
+2. Install Evolve.Tool:  
+   `dotnet tool install --global Evolve.Tool`.
+3. Run migrations:  
+   `evolve migrate postgresql -c "Server=localhost;Uid=postgres;Database=postgres;" -l "Customer.Api/database/migrations"`.
