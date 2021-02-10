@@ -1,3 +1,9 @@
+﻿// -------------------------------------------------------------
+// Copyright Go-Logs. All rights reserved.
+// Proprietary and confidential.
+// Unauthorized copying of this file is strictly prohibited.
+// -------------------------------------------------------------
+
 namespace GoLogs.Services.Customer.Api.Models
 {
     public class CompanyInputDto
@@ -5,25 +11,25 @@ namespace GoLogs.Services.Customer.Api.Models
         /// <summary>
         ///     The name of the company.
         /// </summary>
-        /// <example>Johnny's Freight Forwarder</example>
+        /// <example>Johnny's Freight Forwarder.</example>
         public string CompanyName { get; set; }
 
         /// <summary>
         ///     Nomor pokok wajib pajak. Unformatted.
         /// </summary>
-        /// <example>000000000000000</example>
+        /// <example>000000000000000.</example>
         public string Npwp { get; set; }
 
         /// <summary>
         ///     Nomor induk berusaha.
         /// </summary>
-        /// <example>0000000000000</example>
+        /// <example>0000000000000.</example>
         public string Nib { get; set; }
 
         /// <summary>
         ///     Nomor identitas kepabeanan.
         /// </summary>
-        /// <example>00000000</example>
+        /// <example>00000000.</example>
         public string Nik { get; set; }
 
         /// <summary>

@@ -1,3 +1,9 @@
+﻿// -------------------------------------------------------------
+// Copyright Go-Logs. All rights reserved.
+// Proprietary and confidential.
+// Unauthorized copying of this file is strictly prohibited.
+// -------------------------------------------------------------
+
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -20,30 +26,119 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using PostgresClient;
-using PostgresClient.DependencyInjectionExtensions;
-using PostgresClient.ManagedColumns;
+using Nirbito.Framework.PostgresClient;
+using Nirbito.Framework.PostgresClient.DependencyInjectionExtensions;
+using Nirbito.Framework.PostgresClient.ManagedColumns;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace GoLogs.Services.Customer.Api
 {
     public class Startup
     {
-        private AssemblyName AssemblyName { get; }
+        private ServiceOptions _rabbitMqOptions;
 
-        // ReSharper disable once MemberCanBePrivate.Global
-        public IConfiguration Configuration { get; }
-        
         public Startup(IConfiguration configuration)
         {
             AssemblyName = Assembly.GetEntryAssembly()?.GetName();
             Configuration = configuration;
         }
 
-        #region RabbitMq
-        
-        private ServiceOptions _rabbitMqOptions;
-        
+        // ReSharper disable once MemberCanBePrivate.Global
+        public IConfiguration Configuration { get; }
+
+        private AssemblyName AssemblyName { get; }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services
+                .AddHttpContextAccessor()
+                .AddControllers()
+                .AddFluentValidation()
+                .AddNewtonsoftJson();
+
+            services
+                .AddSingleton<ScopedHttpContext>()
+                .AddOptions<PgContextOptions>()
+                .Configure<ScopedHttpContext>((options, context) => options.DefaultColumns =
+                    new Collection<IDefaultColumn>
+                    {
+                        new DefaultColumn<DateTime?>(
+                            "created", (insert, update) =>
+                                insert ? (DateTime?)DateTime.Now : null),
+                        new DefaultColumn<string>(
+                            "creator", (insert, update) =>
+                                insert ? context?.Accessor.HttpContext.User.Identity.Name ?? "ANONYMOUS" : null),
+                        new DefaultColumn<DateTime?>(
+                            "modified", (insert, update) =>
+                                update ? (DateTime?)DateTime.Now : null),
+                        new DefaultColumn<string>(
+                            "modifier", (insert, update) =>
+                                update ? context?.Accessor.HttpContext.User.Identity.Name ?? "ANONYMOUS" : null)
+                    });
+
+            services
+                .AddPgContext<CustomerContext>(options => options
+                    .UseConnectionString(Configuration.GetConnectionString("CustomerDb"))
+                    .UseSoftDeleteColumn(new SoftDeleteColumn<int>(
+                        "rowstatus", delete => delete ? 1 : 0))
+                    .UseNamingConvention(NamingConvention.SnakeCase));
+
+            services.AddMassTransit(mt =>
+            {
+                mt.UsingRabbitMq(ConfigureRabbitMq);
+            });
+
+            services
+                .AddScoped<IProblemCollector, ProblemCollector>()
+                .AddScoped<ICustomerLogic, CustomerLogic>()
+                .AddFluentValidators()
+                .AddAutoMapper(typeof(Startup));
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc(
+                    "v1",
+                    new OpenApiInfo
+                    {
+                        Title = AssemblyName.Name,
+                        Version = "v1"
+                    });
+
+                var filePath = System.IO.Path.Combine(
+                    AppContext.BaseDirectory,
+                    String.Concat(AssemblyName.Name, ".xml"));
+                c.IncludeXmlComments(filePath);
+                c.AddFluentValidationRules();
+            });
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+
+                // Enable middleware to serve generated Swagger as a JSON endpoint.
+                app.UseSwagger();
+
+                // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+                // specifying the Swagger JSON endpoint.
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint(
+                        "swagger/v1/swagger.json",
+                        String.Concat(AssemblyName.Name, " v1"));
+                    c.RoutePrefix = String.Empty;
+                });
+            }
+
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+
         private X509Certificate CertificateSelectionCallback(
             object sender, string targetHost, X509CertificateCollection localCertificates,
             X509Certificate remoteCertificate, string[] acceptableIssuers)
@@ -56,7 +151,7 @@ namespace GoLogs.Services.Customer.Api
 
         private void ConfigureRabbitMq(IBusRegistrationContext context, IRabbitMqBusFactoryConfigurator rabbitMqCfg)
         {
-            _rabbitMqOptions = Configuration.GetSection(ServiceDependenciesOptions.SERVICE_DEPENDENCIES)
+            _rabbitMqOptions = Configuration.GetSection(ServiceDependenciesOptions.ServiceDependencies)
                 .Get<ServiceOptions[]>()
                 .First(svc => svc.Name.Equals("RabbitMQ"));
 
@@ -96,99 +191,6 @@ namespace GoLogs.Services.Customer.Api
             });
 
             rabbitMqCfg.ConfigureEndpoints(context);
-        }
-        
-        #endregion
-        
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services
-                .AddHttpContextAccessor()
-                .AddControllers()
-                .AddFluentValidation()
-                .AddNewtonsoftJson();
-
-            services
-                .AddSingleton<ScopedHttpContext>()
-                .AddOptions<PgContextOptions>()
-                .Configure<ScopedHttpContext>((options, context) => options.DefaultColumns =
-                    new Collection<IDefaultColumn>
-                    {
-                        new DefaultColumn<DateTime?>(
-                            "created", (insert, update) =>
-                                insert ? (DateTime?) DateTime.Now : null),
-                        new DefaultColumn<string>(
-                            "creator", (insert, update) =>
-                                insert ? context?.Accessor.HttpContext.User.Identity.Name ?? "ANONYMOUS" : null),
-                        new DefaultColumn<DateTime?>(
-                            "modified", (insert, update) =>
-                                update ? (DateTime?) DateTime.Now : null),
-                        new DefaultColumn<string>(
-                            "modifier", (insert, update) =>
-                                update ? context?.Accessor.HttpContext.User.Identity.Name ?? "ANONYMOUS" : null),
-                    });
-
-            services
-                .AddPgContext<CustomerContext>(options => options
-                    .UseConnectionString(Configuration.GetConnectionString("CustomerDb"))
-                    .UseSoftDeleteColumn(new SoftDeleteColumn<int>(
-                        "rowstatus", delete => delete ? 1 : 0))
-                    .UseNamingConvention(NamingConvention.SnakeCase));
-
-            services.AddMassTransit(mt =>
-            {
-                mt.UsingRabbitMq(ConfigureRabbitMq);
-            });
-            
-            services
-                .AddScoped<IProblemCollector, ProblemCollector>()
-                .AddScoped<ICustomerLogic, CustomerLogic>()
-                .AddFluentValidators()
-                .AddAutoMapper(typeof(Startup));
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1",
-                    new OpenApiInfo
-                    {
-                        Title = AssemblyName.Name,
-                        Version = "v1"
-                    }
-                );
-
-                var filePath = System.IO.Path.Combine(
-                    AppContext.BaseDirectory,
-                    String.Concat(AssemblyName.Name, ".xml"));
-                c.IncludeXmlComments(filePath);
-                c.AddFluentValidationRules();
-            });
-        }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                
-                // Enable middleware to serve generated Swagger as a JSON endpoint.
-                app.UseSwagger();
-
-                // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-                // specifying the Swagger JSON endpoint.
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint(
-                        "swagger/v1/swagger.json",
-                        String.Concat(AssemblyName.Name, " v1"));
-                    c.RoutePrefix = String.Empty;
-                });
-            }
-
-            app.UseRouting();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
         }
     }
 }

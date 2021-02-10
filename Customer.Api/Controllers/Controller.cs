@@ -1,3 +1,9 @@
+﻿// -------------------------------------------------------------
+// Copyright Go-Logs. All rights reserved.
+// Proprietary and confidential.
+// Unauthorized copying of this file is strictly prohibited.
+// -------------------------------------------------------------
+
 using AutoMapper;
 using GoLogs.Framework.Mvc;
 using GoLogs.Services.Customer.Api.BusinessLogic;
@@ -10,10 +16,12 @@ namespace GoLogs.Services.Customer.Api.Controllers
     {
         private readonly IProblemCollector _problemCollector;
 
-        protected readonly ICustomerLogic CustomerLogic;
-        protected readonly IMapper Mapper;
-        protected readonly IPublishEndpoint PublishEndpoint;
-        
+        protected ICustomerLogic CustomerLogic { get; }
+
+        protected IMapper Mapper { get; }
+
+        protected IPublishEndpoint PublishEndpoint { get; }
+
         public Controller(ICustomerLogic customerLogic, IProblemCollector problemCollector,
             IMapper mapper, IPublishEndpoint publishEndpoint)
         {
@@ -25,8 +33,11 @@ namespace GoLogs.Services.Customer.Api.Controllers
 
         protected ObjectResult CheckProblems()
         {
-            if (!_problemCollector.HasProblems) return null;
-            
+            if (!_problemCollector.HasProblems)
+            {
+                return null;
+            }
+
             var problem = _problemCollector.GetProblems();
             return StatusCode(problem.Status.GetValueOrDefault(), problem);
         }

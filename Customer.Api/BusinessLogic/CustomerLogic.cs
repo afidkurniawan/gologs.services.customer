@@ -1,10 +1,16 @@
+﻿// -------------------------------------------------------------
+// Copyright Go-Logs. All rights reserved.
+// Proprietary and confidential.
+// Unauthorized copying of this file is strictly prohibited.
+// -------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using GoLogs.Framework.Mvc;
 using GoLogs.Services.Customer.Api.Application.Internals;
 using GoLogs.Services.Customer.Api.Models;
-using PostgresClient.Exceptions;
+using Nirbito.Framework.PostgresClient.Exceptions;
 using SqlKata;
 
 namespace GoLogs.Services.Customer.Api.BusinessLogic
@@ -14,108 +20,17 @@ namespace GoLogs.Services.Customer.Api.BusinessLogic
         private readonly CustomerContext _context;
         private readonly IProblemCollector _problemCollector;
 
-        #region ERROR_DATA_ALREADY_EXISTS
-
-        private void AddDataAlreadyExistsProblem(CompanyTypeInputDto companyType)
-        {
-            _problemCollector.AddProblem(new CodedProblemDetails
-            (
-                ProblemType.ERROR_DATA_ALREADY_EXISTS,
-                $"{nameof(CompanyType)}.{nameof(CompanyType.TypeName)}",
-                companyType.TypeName
-            ));
-        }
-
-        private void AddDataAlreadyExistsProblem(CompanyInputDto company)
-        {
-            _problemCollector.AddProblem(new CodedProblemDetails
-            (
-                ProblemType.ERROR_DATA_ALREADY_EXISTS,
-                $"{nameof(Company)}.{nameof(Company.Npwp)}",
-                company.Npwp
-            ));
-        }
-
-        private void AddDataAlreadyExistsProblem(CompanyRoleInputDto companyRole)
-        {
-            _problemCollector.AddProblem(new CodedProblemDetails
-            (
-                ProblemType.ERROR_DATA_ALREADY_EXISTS,
-                $"{nameof(CompanyRole)}.{nameof(CompanyRole.RoleName)}",
-                companyRole.RoleName
-            ));
-        }
-
-        private void AddDataAlreadyExistsProblem(PersonInputDto person)
-        {
-            _problemCollector.AddProblem(new CodedProblemDetails
-            (
-                ProblemType.ERROR_DATA_ALREADY_EXISTS,
-                $"{nameof(Person)}.{nameof(Person.Npwp)}",
-                person.Npwp
-            ));
-        }
-
-        private void AddDataAlreadyExistsProblem(TenantInputDto tenant)
-        {
-            _problemCollector.AddProblem(new CodedProblemDetails
-            (
-                ProblemType.ERROR_DATA_ALREADY_EXISTS,
-                $"{nameof(Tenant)}.{nameof(tenant.TenantName)}",
-                tenant.TenantName
-            ));
-        }
-
-        #endregion
-        
         public CustomerLogic(CustomerContext context, IProblemCollector problemCollector, IMapper mapper)
         {
             _context = context;
             _problemCollector = problemCollector;
         }
-        
+
         #region CompanyType
 
         public async Task<CompanyType[]> GetAllCompanyTypesAsync()
         {
             return await _context.CompanyTypes.ToArrayAsync();
-        }
-
-        public async Task<CompanyType> GetCompanyTypeByIdAsync(int id)
-        {
-            return await _context.CompanyTypes.GetAsync(id);
-        }
-
-        public async Task CreateCompanyTypeAsync(CompanyType newCompanyType)
-        {
-            try
-            {
-                await _context.CompanyTypes.InsertAsync(newCompanyType);
-            }
-            catch (DataAlreadyExistsException)
-            {
-                AddDataAlreadyExistsProblem(newCompanyType);
-            }
-        }
-
-        public async Task<bool> UpdateCompanyTypeAsync(CompanyType update)
-        {
-            var updatedCount = 0;
-            try
-            {
-                updatedCount = await _context.CompanyTypes.UpdateAsync(update);
-            }
-            catch (DataAlreadyExistsException)
-            {
-                AddDataAlreadyExistsProblem(update);
-            }
-            return updatedCount > 0;
-        }
-        
-        public async Task<bool> DeleteCompanyTypeAsync(int id)
-        {
-            var deletedCount = await _context.CompanyTypes.DeleteAsync(id);
-            return deletedCount > 0;
         }
 
         #endregion
@@ -155,12 +70,10 @@ namespace GoLogs.Services.Customer.Api.BusinessLogic
             newCompany.CompanyType ??= await GetCompanyTypeByIdAsync(newCompany.CompanyTypeId);
             if (!newCompany.CompanyType.IsTenantType)
             {
-                _problemCollector.AddProblem(new CodedProblemDetails
-                (
+                _problemCollector.AddProblem(new CodedProblemDetails(
                     ProblemType.ERROR_DATA_INVALID,
                     $"{nameof(Company)}.{nameof(Company.CompanyType)}",
-                    newCompany.CompanyType.TypeName
-                ));
+                    newCompany.CompanyType.TypeName));
                 return;
             }
 
@@ -172,7 +85,7 @@ namespace GoLogs.Services.Customer.Api.BusinessLogic
                 });
                 return;
             }
-            
+
             await CreateCompanyAsync(newCompany);
             await CreateTenantAsync(newTenant);
         }
@@ -188,6 +101,7 @@ namespace GoLogs.Services.Customer.Api.BusinessLogic
             {
                 AddDataAlreadyExistsProblem(update);
             }
+
             return updatedCount > 0;
         }
 
@@ -205,7 +119,7 @@ namespace GoLogs.Services.Customer.Api.BusinessLogic
         {
             return await _context.CompanyRoles.GetAsync(id);
         }
-        
+
         public async Task CreateCompanyRoleAsync(CompanyRole newCompanyRole)
         {
             try
@@ -219,7 +133,7 @@ namespace GoLogs.Services.Customer.Api.BusinessLogic
         }
 
         #endregion
-        
+
         public async Task CreateTenantAsync(Tenant newTenant)
         {
             try
@@ -259,5 +173,87 @@ namespace GoLogs.Services.Customer.Api.BusinessLogic
                 AddDataAlreadyExistsProblem(newPerson);
             }
         }
+
+        #region ERROR_DATA_ALREADY_EXISTS
+
+        private void AddDataAlreadyExistsProblem(CompanyTypeInputDto companyType)
+        {
+            _problemCollector.AddProblem(new CodedProblemDetails(
+                ProblemType.ERROR_DATA_ALREADY_EXISTS,
+                $"{nameof(CompanyType)}.{nameof(CompanyType.TypeName)}",
+                companyType.TypeName));
+        }
+
+        private void AddDataAlreadyExistsProblem(CompanyInputDto company)
+        {
+            _problemCollector.AddProblem(new CodedProblemDetails(
+                ProblemType.ERROR_DATA_ALREADY_EXISTS,
+                $"{nameof(Company)}.{nameof(Company.Npwp)}",
+                company.Npwp));
+        }
+
+        private void AddDataAlreadyExistsProblem(CompanyRoleInputDto companyRole)
+        {
+            _problemCollector.AddProblem(new CodedProblemDetails(
+                ProblemType.ERROR_DATA_ALREADY_EXISTS,
+                $"{nameof(CompanyRole)}.{nameof(CompanyRole.RoleName)}",
+                companyRole.RoleName));
+        }
+
+        private void AddDataAlreadyExistsProblem(PersonInputDto person)
+        {
+            _problemCollector.AddProblem(new CodedProblemDetails(
+                ProblemType.ERROR_DATA_ALREADY_EXISTS,
+                $"{nameof(Person)}.{nameof(Person.Npwp)}",
+                person.Npwp));
+        }
+
+        private void AddDataAlreadyExistsProblem(TenantInputDto tenant)
+        {
+            _problemCollector.AddProblem(new CodedProblemDetails(
+                ProblemType.ERROR_DATA_ALREADY_EXISTS,
+                $"{nameof(Tenant)}.{nameof(tenant.TenantName)}",
+                tenant.TenantName));
+        }
+
+        public async Task<CompanyType> GetCompanyTypeByIdAsync(int id)
+        {
+            return await _context.CompanyTypes.GetAsync(id);
+        }
+
+        public async Task CreateCompanyTypeAsync(CompanyType newCompanyType)
+        {
+            try
+            {
+                await _context.CompanyTypes.InsertAsync(newCompanyType);
+            }
+            catch (DataAlreadyExistsException)
+            {
+                AddDataAlreadyExistsProblem(newCompanyType);
+            }
+        }
+
+        public async Task<bool> UpdateCompanyTypeAsync(CompanyType update)
+        {
+            var updatedCount = 0;
+            try
+            {
+                updatedCount = await _context.CompanyTypes.UpdateAsync(update);
+            }
+            catch (DataAlreadyExistsException)
+            {
+                AddDataAlreadyExistsProblem(update);
+            }
+
+            return updatedCount > 0;
+        }
+
+        public async Task<bool> DeleteCompanyTypeAsync(int id)
+        {
+            var deletedCount = await _context.CompanyTypes.DeleteAsync(id);
+            return deletedCount > 0;
+        }
+
+        #endregion
     }
 }
