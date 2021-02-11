@@ -16,16 +16,15 @@ namespace GoLogs.Services.Customer.Api
     // ReSharper disable once ClassNeverInstantiated.Global
     public class Program
     {
-        private static readonly string EnvironmentName;
         private static readonly IConfiguration _configuration;
 
         static Program()
         {
-            EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             _configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false)
-                .AddJsonFile($"appsettings.{EnvironmentName}.json", optional: true)
+                .AddJsonFile("appsettings.json", false)
+                .AddJsonFile($"appsettings.{environmentName}.json", true)
                 .AddEnvironmentVariables()
                 .Build();
         }

@@ -16,7 +16,9 @@ namespace GoLogs.Services.Customer.Api.Application.Validators
         ///     Defines a name validator on the current rule builder.
         ///     A name can only contains letters, spaces, dots, and commas.
         /// </summary>
-        /// <returns></returns>
+        /// <typeparam name="T">The type to be validated.</typeparam>
+        /// <param name="ruleBuilder">The rule builder on which the validator should be defined.</param>
+        /// <returns>The rule builder.</returns>
         public static IRuleBuilderInitial<T, string> PersonName<T>(
             this IRuleBuilder<T, string> ruleBuilder)
         {
@@ -43,7 +45,9 @@ namespace GoLogs.Services.Customer.Api.Application.Validators
         /// <summary>
         ///     Defines a numbers-only string validator on the current rule builder.
         /// </summary>
-        /// <returns></returns>
+        /// <typeparam name="T">The type to be validated.</typeparam>
+        /// <param name="ruleBuilder">The rule builder on which the validator should be defined.</param>
+        /// <returns>The rule builder.</returns>
         public static IRuleBuilderOptions<T, string> NumbersOnly<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
             return ruleBuilder.Must(p => p.ToCharArray().All(Char.IsDigit))

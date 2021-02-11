@@ -16,12 +16,6 @@ namespace GoLogs.Services.Customer.Api.Controllers
     {
         private readonly IProblemCollector _problemCollector;
 
-        protected ICustomerLogic CustomerLogic { get; }
-
-        protected IMapper Mapper { get; }
-
-        protected IPublishEndpoint PublishEndpoint { get; }
-
         public Controller(ICustomerLogic customerLogic, IProblemCollector problemCollector,
             IMapper mapper, IPublishEndpoint publishEndpoint)
         {
@@ -30,6 +24,12 @@ namespace GoLogs.Services.Customer.Api.Controllers
             Mapper = mapper;
             PublishEndpoint = publishEndpoint;
         }
+
+        protected ICustomerLogic CustomerLogic { get; }
+
+        protected IMapper Mapper { get; }
+
+        protected IPublishEndpoint PublishEndpoint { get; }
 
         protected ObjectResult CheckProblems()
         {

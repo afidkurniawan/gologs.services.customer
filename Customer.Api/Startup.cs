@@ -63,16 +63,16 @@ namespace GoLogs.Services.Customer.Api
                     new Collection<IDefaultColumn>
                     {
                         new DefaultColumn<DateTime?>(
-                            "created", (insert, update) =>
+                            "created", (insert, _) =>
                                 insert ? (DateTime?)DateTime.Now : null),
                         new DefaultColumn<string>(
-                            "creator", (insert, update) =>
+                            "creator", (insert, _) =>
                                 insert ? context?.Accessor.HttpContext.User.Identity.Name ?? "ANONYMOUS" : null),
                         new DefaultColumn<DateTime?>(
-                            "modified", (insert, update) =>
+                            "modified", (_, update) =>
                                 update ? (DateTime?)DateTime.Now : null),
                         new DefaultColumn<string>(
-                            "modifier", (insert, update) =>
+                            "modifier", (_, update) =>
                                 update ? context?.Accessor.HttpContext.User.Identity.Name ?? "ANONYMOUS" : null)
                     });
 

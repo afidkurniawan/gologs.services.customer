@@ -20,7 +20,7 @@ namespace GoLogs.Services.Customer.Api.BusinessLogic
         private readonly CustomerContext _context;
         private readonly IProblemCollector _problemCollector;
 
-        public CustomerLogic(CustomerContext context, IProblemCollector problemCollector, IMapper mapper)
+        public CustomerLogic(CustomerContext context, IProblemCollector problemCollector)
         {
             _context = context;
             _problemCollector = problemCollector;
@@ -174,6 +174,44 @@ namespace GoLogs.Services.Customer.Api.BusinessLogic
             }
         }
 
+        public async Task<CompanyType> GetCompanyTypeByIdAsync(int id)
+        {
+            return await _context.CompanyTypes.GetAsync(id);
+        }
+
+        public async Task CreateCompanyTypeAsync(CompanyType newCompanyType)
+        {
+            try
+            {
+                await _context.CompanyTypes.InsertAsync(newCompanyType);
+            }
+            catch (DataAlreadyExistsException)
+            {
+                AddDataAlreadyExistsProblem(newCompanyType);
+            }
+        }
+
+        public async Task<bool> UpdateCompanyTypeAsync(CompanyType update)
+        {
+            var updatedCount = 0;
+            try
+            {
+                updatedCount = await _context.CompanyTypes.UpdateAsync(update);
+            }
+            catch (DataAlreadyExistsException)
+            {
+                AddDataAlreadyExistsProblem(update);
+            }
+
+            return updatedCount > 0;
+        }
+
+        public async Task<bool> DeleteCompanyTypeAsync(int id)
+        {
+            var deletedCount = await _context.CompanyTypes.DeleteAsync(id);
+            return deletedCount > 0;
+        }
+
         #region ERROR_DATA_ALREADY_EXISTS
 
         private void AddDataAlreadyExistsProblem(CompanyTypeInputDto companyType)
@@ -214,44 +252,6 @@ namespace GoLogs.Services.Customer.Api.BusinessLogic
                 ProblemType.ERROR_DATA_ALREADY_EXISTS,
                 $"{nameof(Tenant)}.{nameof(tenant.TenantName)}",
                 tenant.TenantName));
-        }
-
-        public async Task<CompanyType> GetCompanyTypeByIdAsync(int id)
-        {
-            return await _context.CompanyTypes.GetAsync(id);
-        }
-
-        public async Task CreateCompanyTypeAsync(CompanyType newCompanyType)
-        {
-            try
-            {
-                await _context.CompanyTypes.InsertAsync(newCompanyType);
-            }
-            catch (DataAlreadyExistsException)
-            {
-                AddDataAlreadyExistsProblem(newCompanyType);
-            }
-        }
-
-        public async Task<bool> UpdateCompanyTypeAsync(CompanyType update)
-        {
-            var updatedCount = 0;
-            try
-            {
-                updatedCount = await _context.CompanyTypes.UpdateAsync(update);
-            }
-            catch (DataAlreadyExistsException)
-            {
-                AddDataAlreadyExistsProblem(update);
-            }
-
-            return updatedCount > 0;
-        }
-
-        public async Task<bool> DeleteCompanyTypeAsync(int id)
-        {
-            var deletedCount = await _context.CompanyTypes.DeleteAsync(id);
-            return deletedCount > 0;
         }
 
         #endregion
