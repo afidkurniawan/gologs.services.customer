@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
 using GoLogs.Framework.Mvc;
 using GoLogs.Services.Customer.Api.Application.Internals;
 using GoLogs.Services.Customer.Api.Models;

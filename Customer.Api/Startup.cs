@@ -10,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Reflection;
-using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using AutoMapper;
 using FluentValidation.AspNetCore;
@@ -144,16 +143,16 @@ namespace GoLogs.Services.Customer.Api
             X509Certificate remoteCertificate, string[] acceptableIssuers)
         {
             var serverCertificate = localCertificates.OfType<X509Certificate2>()
-                .FirstOrDefault(cert => cert.Thumbprint?.ToLower() == _rabbitMqOptions.SslThumbprint.ToLower());
+                .FirstOrDefault(cert => cert.Thumbprint?.ToUpperInvariant() == _rabbitMqOptions.SslThumbprint.ToUpperInvariant());
 
-            return serverCertificate ?? throw new Exception("Wrong certificate");
+            return serverCertificate ?? throw new System.Security.SecurityException("Wrong certificate");
         }
 
         private void ConfigureRabbitMq(IBusRegistrationContext context, IRabbitMqBusFactoryConfigurator rabbitMqCfg)
         {
             _rabbitMqOptions = Configuration.GetSection(ServiceDependenciesOptions.ServiceDependencies)
                 .Get<ServiceOptions[]>()
-                .First(svc => svc.Name.Equals("RabbitMQ"));
+                .First(svc => svc.Name.Equals("RabbitMQ", StringComparison.Ordinal));
 
             X509Certificate2 x509Certificate2 = null;
 
@@ -165,7 +164,7 @@ namespace GoLogs.Services.Customer.Api
                 var certificatesInStore = store.Certificates;
 
                 x509Certificate2 = certificatesInStore.OfType<X509Certificate2>()
-                    .FirstOrDefault(cert => cert.Thumbprint?.ToLower() == _rabbitMqOptions.SslThumbprint?.ToLower());
+                    .FirstOrDefault(cert => cert.Thumbprint?.ToUpperInvariant() == _rabbitMqOptions.SslThumbprint?.ToUpperInvariant());
             }
             finally
             {
@@ -184,7 +183,6 @@ namespace GoLogs.Services.Customer.Api
                         ssl.ServerName = Dns.GetHostName();
                         ssl.AllowPolicyErrors(SslPolicyErrors.RemoteCertificateNameMismatch);
                         ssl.Certificate = x509Certificate2;
-                        ssl.Protocol = SslProtocols.Tls12;
                         ssl.CertificateSelectionCallback = CertificateSelectionCallback;
                     });
                 }
